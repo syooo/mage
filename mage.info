@@ -1,0 +1,7 @@
+name = Magial core module
+description = Description.
+core = 7.x
+
+dependencies[] = ctools
+
+files[] = model.inc

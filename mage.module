@@ -1,0 +1,119 @@
+<?php
+
+function mage_menu() 
+{
+
+  $items['main'] = array(
+    'title' => 'Как выбрать подарок?',
+    'page callback' => 'mage_main_page',
+    'access callback' => TRUE,
+  );
+  
+  return $items;
+}
+
+function mage_theme() 
+{
+  $themes = array (
+    'theme_mage_grid' => array(
+      'template' => 'mage-grid',
+      'variables' => array('rows' => NULL),
+    ),
+  );
+  return $themes;
+}
+
+function mage_main_page() 
+{
+  drupal_add_library('system', 'ui.widget');
+  drupal_add_library('system', 'ui.mouse');
+  drupal_add_library('system', 'ui.slider');
+
+  drupal_add_js('sites/all/modules/mage/jquery.slideto.v1.1.js');
+  //drupal_add_js('//yandex.st/share/share.js');
+
+  ctools_include('model', 'mage');
+
+  drupal_set_title('');
+
+  $result = array();
+  $q = mage_get_gifts_all();
+
+  while ($row = $q->fetchAssoc())
+  {
+    $r = $row;
+    $r['img'] = theme('image_style', array('style_name' => '260x180', 'path' => file_build_uri($row['filename'])));
+
+    $result[] = $r;
+  }
+
+
+  $form = drupal_get_form('mage_submit_ajax');
+  $output = drupal_render($form);
+
+  $output .= '
+  <div id="result"></div>
+  <div id="ribbon"></div>
+  <div class="results">
+    <div class="container">
+      <div id="result-box">
+      ' . theme('theme_mage_grid', array('rows' => $result)) . '
+      </div>
+    </div>
+  </div>
+  ';
+
+  return $output;
+}
+
+function mage_submit_ajax($form, &$form_state) 
+{
+
+  $form = mage_get_form_main();
+  return $form;
+}
+
+/**
+ * Select the 'box' element, change the markup in it, and return it as a
+ * renderable array.
+ *
+ * @return renderable array (the box element)
+ */
+function mage_submit_driven_callback($form, $form_state) {
+  // In most cases, it is recomended that you put this logic in form generation
+  // rather than the callback. Submit driven forms are an exception, because
+  // you may not want to return the form at all.
+  ctools_include('model', 'mage');
+
+  $val = $form_state['values'];
+  
+
+  $result = array();
+  
+  $q = mage_get_gifts($val);
+
+  while ($row = $q->fetchAssoc())
+  {
+    $r = $row;
+    $r['img'] = theme('image_style', array('style_name' => '260x180', 'path' => file_build_uri($row['filename'])));
+
+    $result[] = $r;
+  }
+
+  $markup = theme('theme_mage_grid', array('rows' => $result));
+
+  $commands = array();
+  $commands[] = ajax_command_html("#result-box", $markup);
+  $commands[] = ajax_command_invoke('li.result a', 'click');
+
+  //$commands[] = ajax_command_invoke('fieldset', 'animate', array(array('scrollTop' => 1000), 'slow'));
+
+
+
+
+  return array('#type' => 'ajax', '#commands' => $commands);
+
+//print_r($a->fetchAll(), true);
+
+  //return $element;
+}
