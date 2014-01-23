@@ -138,11 +138,16 @@ function mage_get_form_main()
 {
   $fields = field_info_fields();
 
-  $form['sex'] = array(
-    '#type' => 'fieldset', 
-  );
+    $form['sex'] = array(
+        '#type' => 'fieldset',
+    );
 
-  $form['sex']['sex_h'] = array(
+    $form['sex']['anchor'] = array(
+        '#type' => 'markup',
+        '#markup' => '<div id="top"></div>',
+    );
+
+    $form['sex']['sex_h'] = array(
     '#type' => 'markup',
     '#prefix' => '<h3>',
     '#markup' => 'Выберите пол',
@@ -164,7 +169,7 @@ function mage_get_form_main()
 
 
   $form['age'] = array(
-    '#type' => 'fieldset', 
+    '#type' => 'fieldset',
   );
 
   $form['age']['age_h'] = array(
